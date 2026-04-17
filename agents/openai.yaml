@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Memory Sync"
+  short_description: "Shared memory sync for multi-agent coding"
+  default_prompt: "Set up or maintain shared multi-agent memory with canonical mapping, structured project memory, and scaffold cleanup."
