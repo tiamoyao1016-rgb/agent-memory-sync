@@ -14,6 +14,7 @@ Produce and maintain these layers:
 - Shared skills in `E:\skills\.agents\skills`
 - Project-local active state in each repo's `.codex-memory`
 - A canonical project map for overlapping projects
+- Optional: a global resume index that allows resuming projects without adding `.codex-memory` to every repo
 
 Do not treat full chat history as the source of truth.
 
@@ -65,12 +66,14 @@ Use `scripts/write_project_agent_entry.ps1` to create or refresh a minimal proje
 Optimize for closing VS Code and resuming later with minimal tokens.
 
 Do:
-- store only current facts, decisions, constraints, and working-set cues in `.codex-memory/current.md`
+- store only the latest task-state line in `.codex-memory/current.md`
+- keep `current.md` as a single line: `任务:...; 下一步:...; 工作集:A,B,C`
 - keep project specs stable and small
 - prefer new conversations from files over replaying long chats
 
 Do not:
 - rely on repeated compaction as the main strategy
+- let agents append reports / multi-line logs into `current.md`
 - keep scaffold memories inside active project trees
 - ask the user to restate long handoff prompts by default
 
@@ -92,6 +95,23 @@ For VS Code agents such as Codex and Claude Code:
 - do not assume a global npm CLI is required
 - verify the extension still reads `AGENTS.md` and `.codex-memory` from the opened workspace
 
+### 7. Global Resume Index (No Per-Project `.codex-memory`)
+
+If you do not want to add `.codex-memory` into every project folder, use a single "memory hub" folder and store one-line task state per workspace path.
+
+Pattern:
+- Choose a hub root (example: `E:\claude code-ctxmem`)
+- Create `resume/index.md` under the hub
+- Each project is exactly one line:
+  - `<workspace-abs-path> | 任务:...; 下一步:...; 工作集:A,B,C | updated:YYYY-MM-DD`
+
+Rules:
+- Session start: if `./.codex-memory/current.md` exists in the opened workspace, use it.
+- Otherwise, read the global resume index and match the current workspace absolute path.
+- Keep the resume index one-project-one-line. If it drifts, normalize it.
+
+Use `scripts/normalize_resume_index.ps1` to enforce one-line-per-project and de-dup by workspace path.
+
 ## Validation
 
 After setup, test with a fresh session:
@@ -109,6 +129,9 @@ Scan project roots for `.codex-memory` nodes and summarize current-state file ti
 
 ### scripts/write_project_agent_entry.ps1
 Write a minimal `AGENTS.md` for canonical project roots so fresh sessions start from files, not chat history.
+
+### scripts/normalize_resume_index.ps1
+Normalize a global `resume/index.md` file back to "one project per line" and de-duplicate entries by workspace path.
 
 ### references/status-model.md
 Read when deciding active vs support vs scaffold vs archived memory states.

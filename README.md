@@ -22,6 +22,7 @@ Use a shared memory layout with four layers:
 - shared skills in `E:\skills\.agents\skills`
 - project-local active state in each repo's `.codex-memory`
 - a canonical project map for overlapping or duplicated projects
+- optional: a global resume index for projects you do not want to modify
 
 The goal is simple:
 
@@ -52,6 +53,28 @@ The goal is simple:
 3. Create or update the canonical map in global memory.
 4. Keep each canonical project root self-bootstrapping with `AGENTS.md` plus a lean `.codex-memory`.
 5. When context gets too long, write the latest facts into `current.md` and start a fresh chat instead of repeatedly compacting.
+
+## One-line current.md (non-negotiable)
+
+If you want token savings, `current.md` cannot be a running log.
+
+Keep it as a single task-state line:
+
+`任务:...; 下一步:...; 工作集:A,B,C`
+
+Do not append multi-line reports, migration notes, lists, or Markdown links.
+
+## Global resume index (no repo changes)
+
+If you do not want to add `.codex-memory` into every project folder, use a single memory hub and store per-workspace task state in one file.
+
+Index line format:
+
+`<workspace-abs-path> | 任务:...; 下一步:...; 工作集:A,B,C | updated:YYYY-MM-DD`
+
+This lets a new chat resume from the hub when the opened workspace has no `.codex-memory/current.md`.
+
+If the index ever drifts into multiple lines per project, normalize it with `scripts/normalize_resume_index.ps1`.
 
 ## Design principles
 
